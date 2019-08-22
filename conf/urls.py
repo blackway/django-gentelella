@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from . import settings
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
@@ -24,3 +26,14 @@ urlpatterns = [
     url(r'^', include('app.urls')),
 
 ]
+
+if settings.DEBUG:
+    # 장고 디버그 툴바 Django Debug Toolbar 쿼리 디버그
+    import debug_toolbar
+    urlpatterns = [
+        url('__debug__/', include(debug_toolbar.urls)),
+
+        # For django versions before 2.0:
+        # url(r'^__debug__/', include(debug_toolbar.urls)),
+
+    ] + urlpatterns

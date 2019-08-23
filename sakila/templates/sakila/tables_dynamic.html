@@ -85,9 +85,19 @@
             <h4 class="modal-title" id="myModalLabel">Modal title</h4>
           </div>
           <div class="modal-body">
-            <h4>Text in a modal</h4>
-            <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-            <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+              <table class="table">
+                  <tr>
+                      <td>special features</td>
+                      <td><input class="form-control" id="modal_special_features" rows="10"></input> </td>
+                  </tr>
+                  <tr>
+                      <td>내용</td>
+                      <td><textarea class="form-control" id="modal_description" rows="10"></textarea> </td>
+                  </tr>
+              </table>
+{#            <h4>Text in a modal</h4>#}
+{#            <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>#}
+{#            <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>#}
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -168,8 +178,9 @@
                 {% if list %}
                     {% for row in list %}
                         <tr>
-                            <td>{{ row.film_id}}</td>
+                            <input type="hidden" name="film_id" value="{{ row.film_id }}">
                             <td>{{ row.title }}</td>
+                            <td>{{ row.special_features }}</td>
                             <td>{{ row.description }}</td>
                             <td>{{ row.release_year }}</td>
                             <td>{{ row.replacement_cost }}</td>
@@ -3524,4 +3535,91 @@
   <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
   <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
   <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+
+<!-- s: me -->
+    <script>
+         // using jQuery
+          function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          }
+          function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+          }
+          $(document).ready(function() {
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+              beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+              }
+            });
+          });
+    </script>
+
+    {% csrf_token %}
+    <script language="javascript">
+        $(document).ready(function () {
+            var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+            {#alert('a');#}
+            {#alert($('#datatable > tbody > tr').length);#}
+            $local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";
+
+            $('#datatable > tbody > tr').click(function () {
+                var text = $(this).find('td').eq(0).text() + ' : ' + $(this).find('td').eq(2).text();
+                {#alert(text);#}
+                {#$local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";#}
+                $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());
+                {#$($local_modal).find('div > div > div.modal-body > h4').text($(this).find('td').eq(1).text());#}
+                {#$($local_modal).find('div > div > div.modal-body > p:nth-child(2)').text($(this).find('td').eq(2).text());#}
+                $("#modal_special_features").val($(this).find('td').eq(1).text());
+                $("#modal_description").text($(this).find('td').eq(2).text());
+                $($local_modal).modal();
+
+            });
+
+            // Modal의 Submit 버튼 클릭
+            var modal_submit = 'body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg > div > div > div.modal-footer > button.btn.btn-primary';
+            $(modal_submit).click(function(){
+
+                var data = {
+                    'film_id': $('#datatable > tbody > tr:nth-child(1) > input[type=hidden]').val(),
+                    'special_features': $("#modal_special_features").val(),
+                    'description': $("#modal_description").val()
+                };
+                url = '/sakila/film/modify';
+                type = 'post';
+                {#type = 'put';#}
+                $.ajax({
+                    url: url,
+                    dataType:'json',
+                    type: type,
+                    data: data,
+                    success: function(data){
+                        {#$($local_modal).modal('toggle');#}
+                    },
+                    complete: function(data){
+                        {#location.reload();#}
+                    }
+                });
+            });
+
+
+
+        });
+    </script>
+<!-- e: me -->
 {% endblock javascripts %}

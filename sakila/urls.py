@@ -11,5 +11,6 @@ urlpatterns = [
 
     # The home page
     path('', views.index, name='index'),
+    path('film/modify', views.film_modify, name='film_modify'),
     # path('staff/', views.list_staff, name='staff'),
 ]

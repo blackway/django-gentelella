@@ -3609,10 +3609,10 @@
                     type: type,
                     data: data,
                     success: function(data){
-                        {#$($local_modal).modal('toggle');#}
+                        $($local_modal).modal('toggle');
                     },
                     complete: function(data){
-                        {#location.reload();#}
+                        location.reload();
                     }
                 });
             });

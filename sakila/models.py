@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.db.models import Sum, Func, F
 
 
 class Actor(models.Model):
@@ -137,6 +138,12 @@ class Country(models.Model):
         db_table = 'country'
 
 
+class CustomerManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().annotate(total_amount=Func(Sum('payment__amount'), function='ROUND'))
+        # return super().get_queryset().annotate(total_amount=Sum('payment__amount'))
+
+
 class Customer(models.Model):
     customer_id = models.IntegerField(primary_key=True)
     # customer_id = models.IntegerField(unique=True)
@@ -148,6 +155,8 @@ class Customer(models.Model):
     active = models.CharField(max_length=1)
     create_date = models.TextField()  # This field type is a guess.
     last_update = models.TextField()  # This field type is a guess.
+
+    objects_payment_amount = CustomerManager()
 
     class Meta:
         managed = False
@@ -276,8 +285,19 @@ class Language(models.Model):
 
 
 class Payment(models.Model):
-    payment_id = models.IntegerField(unique=True)
-    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    """
+    from sakila.models import *
+    from django.db.models import Sum, Count
+    customers = Customer.objects.annotate(num_payment=Count('payment'))
+
+    Customer.objects.annotate(total_amount=Sum('payment__amount'))
+
+    Store.objects.annotate(min_price=Min('books__price'), max_price=Max('books__price'))
+    """
+    payment = models.IntegerField(db_column='payment_id', primary_key=True)
+    # payment_id = models.IntegerField(unique=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
+    # customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
     # customer_id = models.IntegerField()
     staff_id = models.SmallIntegerField()
     rental_id = models.IntegerField(blank=True, null=True)

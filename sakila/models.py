@@ -138,7 +138,8 @@ class Country(models.Model):
 
 
 class Customer(models.Model):
-    customer_id = models.IntegerField(unique=True)
+    customer_id = models.IntegerField(primary_key=True)
+    # customer_id = models.IntegerField(unique=True)
     store_id = models.IntegerField()
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
@@ -276,7 +277,8 @@ class Language(models.Model):
 
 class Payment(models.Model):
     payment_id = models.IntegerField(unique=True)
-    customer_id = models.IntegerField()
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    # customer_id = models.IntegerField()
     staff_id = models.SmallIntegerField()
     rental_id = models.IntegerField(blank=True, null=True)
     amount = models.TextField()  # This field type is a guess.

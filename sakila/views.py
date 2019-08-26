@@ -7,7 +7,9 @@ from django.template import loader
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from pip._vendor.requests import Response
+# from pip._vendor.requests import Response
+from django.views.generic import ListView
+from .models import Customer
 
 from .models import Film
 
@@ -85,6 +87,11 @@ def list_staff(request):
     template = loader.get_template('sakila/tables_dynamic.html')
     return HttpResponse(template.render(context, request))
 
+# 클래스 뷰
+class CustomerList(ListView):
+    model = Customer
+    template_name = 'sakila/tables_dynamic_customer.html'
+    context_object_name = 'list'
 
 
 

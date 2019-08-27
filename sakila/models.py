@@ -6,7 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-from django.db.models import Sum, Func, F
+from django.db.models import Sum, Func, F, Count
 
 
 class Actor(models.Model):
@@ -140,7 +140,8 @@ class Country(models.Model):
 
 class CustomerManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(total_amount=Func(Sum('payment__amount'), function='ROUND'))
+        return super().get_queryset().annotate(total_amount=Func(Sum('payment__amount'), function='ROUND')
+                                               , payment_count=Count('payment__payment_id'))
         # return super().get_queryset().annotate(total_amount=Sum('payment__amount'))
 
 
@@ -156,7 +157,8 @@ class Customer(models.Model):
     create_date = models.TextField()  # This field type is a guess.
     last_update = models.TextField()  # This field type is a guess.
 
-    objects_payment_amount = CustomerManager()
+    objects = CustomerManager()
+    # objects_payment_amount = CustomerManager()
 
     class Meta:
         managed = False

@@ -3600,7 +3600,8 @@
                     'special_features': $("#modal_special_features").val(),
                     'description': $("#modal_description").val()
                 };
-                url = '/sakila/film/modify';
+                url = '/sakila/customerAjax';
+                {#url = '/sakila/film/modify';#}
                 type = 'post';
                 {#type = 'put';#}
                 $.ajax({
@@ -3609,10 +3610,10 @@
                     type: type,
                     data: data,
                     success: function(data){
-                        $($local_modal).modal('toggle');
+                        {#$($local_modal).modal('toggle');#}
                     },
                     complete: function(data){
-                        location.reload();
+                        {#location.reload();#}
                     }
                 });
             });

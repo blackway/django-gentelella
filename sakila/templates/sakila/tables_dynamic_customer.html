@@ -183,7 +183,7 @@
                             <td>{{ row.first_name }}</td>
                             <td>{{ row.last_name }}</td>
                             <td>{{ row.total_amount }}</td>
-                            <td>{{ row.replacement_cost }}</td>
+                            <td>{{ row.email }}</td>
                             <td>{{ row.last_update}}</td>
                         </tr>
                     {% endfor %}
@@ -3600,7 +3600,8 @@
                     'special_features': $("#modal_special_features").val(),
                     'description': $("#modal_description").val()
                 };
-                url = '/sakila/film/modify';
+                url = '/sakila/customerAjax';
+                {#url = '/sakila/film/modify';#}
                 type = 'post';
                 {#type = 'put';#}
                 $.ajax({

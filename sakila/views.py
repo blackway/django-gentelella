@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 # from pip._vendor.requests import Response
 from django.views.generic import ListView
+from django.views import View
 from .models import Customer
 
 from .models import Film
@@ -87,12 +88,41 @@ def list_staff(request):
     template = loader.get_template('sakila/tables_dynamic.html')
     return HttpResponse(template.render(context, request))
 
-# 클래스 뷰
-class CustomerList(ListView):
+
+class CustomerListView(ListView):
+    """
+    클래스 뷰
+    """
     model = Customer
     template_name = 'sakila/tables_dynamic_customer.html'
     context_object_name = 'list'
 
 
+class CustomerAjaxView(View):
+    """
+    Ajax 처리
+    """
 
+    def post(self, request):
+        if request.is_ajax():
+            # data = {"lat":20.586, "lon":-89.530}
+            # print(request.POST.get('value'))
+            logger.debug(' class name : %s ' % 'CustomerAjaxView')
+            logger.debug(' function name : %s ' % 'post')
+            film_id = request.POST['film_id']
+            description = request.POST['description']
+            special_features = request.POST['special_features']
 
+            film = get_object_or_404(Film, pk=film_id)
+            film.description = description
+            film.special_features = special_features
+            film.save()
+            # tmpJson = serializers.serialize("json",film)
+            # tmpObj = json.loads(tmpJson)
+            data = {
+                "msg": "성공",
+            }
+            return JsonResponse(data,  json_dumps_params={'ensure_ascii': False})
+
+    def get(self, request):
+         return render(request, 'landing.html', {'foo':'bar'})

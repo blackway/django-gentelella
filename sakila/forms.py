@@ -126,7 +126,7 @@ class CustomerCreateForm(ModelForm):
         # fields = ['__all__']
         # fields = ['first_name', 'last_name']
         # 아래 항목은 cleaned_data 를 하기 위함, pk 는 안하고, self.data.get('pk키') 로 받음.
-        # fields = ('first_name', 'last_name')
+        # fields = ('first_name', 'last_najjjkme')
         fields = '__all__'
         exclude = ('customer_id', 'address_id', 'create_date', 'last_update')
         # exclude = ('address_id', 'customer_id', 'create_date', 'active', 'last_update', 'store_id')

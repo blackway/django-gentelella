@@ -12,7 +12,7 @@ urlpatterns = [
     # The home page
     path('', views.index, name='index'),
     path('film/modify', views.film_modify, name='film_modify'),
-    path('customer', views.CustomerListView.as_view()),
+    path('customer/', views.CustomerListView.as_view()),
     path('customerAjax', views.CustomerAjaxView.as_view()),
     # path('staff/', views.list_staff, name='staff'),
 ]

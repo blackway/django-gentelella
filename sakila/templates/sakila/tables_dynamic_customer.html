@@ -84,6 +84,7 @@
             </button>
             <h4 class="modal-title" id="myModalLabel">Modal title</h4>
           </div>
+          <div class="modal-header" id="errors"></div>
           <div class="modal-body">
               <table class="table">
                   <tr>
@@ -3596,9 +3597,9 @@
             $(modal_submit).click(function(){
 
                 var data = {
-                    'film_id': $('#datatable > tbody > tr:nth-child(1) > input[type=hidden]').val(),
-                    'special_features': $("#modal_special_features").val(),
-                    'description': $("#modal_description").val()
+                    'customer_id': $('#datatable > tbody > tr:nth-child(1) > input[type=hidden]').val(),
+                    'first_name': $("#modal_special_features").val(),
+                    'last_name': $("#modal_description").val()
                 };
                 url = '/sakila/customerAjax';
                 {#url = '/sakila/film/modify';#}
@@ -3610,10 +3611,18 @@
                     type: type,
                     data: data,
                     success: function(data){
-                        $($local_modal).modal('toggle');
+                        {#$($local_modal).modal('toggle');#}
                     },
                     complete: function(data){
-                        location.reload();
+                        {#location.reload();#}
+                        console.log('data : ', data);
+                        data_results = data.responseJSON
+                        console.log('data.msg : ', data.msg);
+                        console.log('JSON.stringify(data)) : ', JSON.stringify(data));
+                        {#data_results = JSON.parse(data)#}
+                        if(data_results.errors.length > 0){
+                            $('#errors').html(data_results.errors);
+                        }
                     }
                 });
             });

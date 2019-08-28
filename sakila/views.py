@@ -10,6 +10,8 @@ from django.core import serializers
 # from pip._vendor.requests import Response
 from django.views.generic import ListView
 from django.views import View
+
+from sakila.forms import CustomerForm
 from .models import Customer
 
 from .models import Film
@@ -103,26 +105,43 @@ class CustomerAjaxView(View):
     Ajax 처리
     """
 
+    form_class = CustomerForm
+    initial = {'key': 'value'}
+
     def post(self, request):
         if request.is_ajax():
             # data = {"lat":20.586, "lon":-89.530}
             # print(request.POST.get('value'))
             logger.debug(' class name : %s ' % 'CustomerAjaxView')
             logger.debug(' function name : %s ' % 'post')
-            film_id = request.POST['film_id']
-            description = request.POST['description']
-            special_features = request.POST['special_features']
+            # film_id = request.POST['film_id']
+            # description = request.POST['description']
+            # special_features = request.POST['special_features']
 
-            film = get_object_or_404(Film, pk=film_id)
-            film.description = description
-            film.special_features = special_features
-            film.save()
+            form = self.form_class(request.POST)
+
+            if form.is_valid():
+                data = {
+                    "msg": "성공",
+                }
+                form.save()
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': False})
+
+            logger.debug(' error msg : %s ' % form.errors)
+            # film = get_object_or_404(Film, pk=film_id)
+            # form = CustomerForm(request.P)
+            # film.description = description
+            # film.special_features = special_features
+            # film.save()
             # tmpJson = serializers.serialize("json",film)
             # tmpObj = json.loads(tmpJson)
             data = {
-                "msg": "성공",
+                "msg": "실패",
+                "errors": str(form.errors) # str() 자동형 변환 하지 못하게 함 그러면 html 로 생성됨.
+                # "errors": form.errors
             }
             return JsonResponse(data,  json_dumps_params={'ensure_ascii': False})
 
     def get(self, request):
-         return render(request, 'landing.html', {'foo':'bar'})
+        form = self.form_class(initial=self.initial)
+        return render(request, 'landing.html', {'form': form})

@@ -5,7 +5,9 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django.db.models import Sum, Func, F, Count
 
 
@@ -149,8 +151,8 @@ class Customer(models.Model):
     customer_id = models.IntegerField(primary_key=True)
     # customer_id = models.IntegerField(unique=True)
     store_id = models.IntegerField()
-    first_name = models.CharField(max_length=45)
-    last_name = models.CharField(max_length=45)
+    first_name = models.CharField(max_length=45, verbose_name='첫번째 이름')
+    last_name = models.CharField(max_length=45, verbose_name='마지막 이름')
     email = models.CharField(max_length=50, blank=True, null=True)
     address_id = models.IntegerField()
     active = models.CharField(max_length=1)
@@ -159,6 +161,21 @@ class Customer(models.Model):
 
     objects = CustomerManager()
     # objects_payment_amount = CustomerManager()
+
+    # def clean(self):
+    #     """
+    #     모델에서 유효성 체크
+    #     :return:
+    #     """
+    #     if self.last_name is not None:
+    #         raise ValidationError({'last_name': _('Draft entries may not have a publication date.')})
+
+    # def clean(self):
+    #     # Don't allow draft entries to have a pub_date.
+    #     # if self.status == 'draft' and self.pub_date is not None:
+    #     if self.last_name is not None:
+    #         raise ValidationError({'last_name': _('Draft entries may not have a publication date.')})
+    #         # raise ValidationError(_('Draft entries may not have a publication date.'))
 
     class Meta:
         managed = False

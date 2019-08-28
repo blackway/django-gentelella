@@ -3685,7 +3685,7 @@
                         console.log('JSON.stringify(data)) : ', JSON.stringify(data));
                         //data_results = JSON.parse(data);
                         if(data_results.form_as_table.length > 0){
-                            $('#errors').html(data_results.form_as_table);
+                            $('#create_modal_form > div.modal-body > table').html(data_results.form_as_table);
                         }
                     }
                 });

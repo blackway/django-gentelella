@@ -79,7 +79,8 @@
     {% comment %} <div id="create_modal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true"> {% endcomment %}
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-
+        <form id="create_modal_form">
+{#        <form action="/your-name/" method="post">#}
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
             </button>
@@ -97,7 +98,7 @@
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary">Save changes</button>
           </div>
-
+        </form>
         </div>
      </div>
     </div>
@@ -3658,16 +3659,16 @@
             });
 
 
-            $('#create_modal')on('show.bs.modal', function (event) {
-                console.log('modal onload');
-            };
+            $('#create_modal').on('show.bs.modal', function(){
+                console.log('show.bs.modal');
+            });
 
             this.onclick_create_modal = function(){
                 console.log('onclick_create_modal');
                  var data = {
                 };
                 url = '/sakila/customerAjaxCreate';
-                type = 'post';
+                type = 'get';
                 $.ajax({
                     url: url,
                     dataType:'json',
@@ -3683,14 +3684,44 @@
                         console.log('data.msg : ', data.msg);
                         console.log('JSON.stringify(data)) : ', JSON.stringify(data));
                         //data_results = JSON.parse(data);
-                        if(data_results.errors.length > 0){
-                            $('#errors').html(data_results.errors);
+                        if(data_results.form_as_table.length > 0){
+                            $('#errors').html(data_results.form_as_table);
                         }
                     }
                 });
             };
 
- 
+            //#create_modal_form
+            //등록
+            var modal_submit = '#create_modal_form > div.modal-footer > button.btn.btn-primary';
+            $(modal_submit).click(function(){
+
+                var data = $("#create_modal_form").serialize();
+                url = '/sakila/customerAjaxCreate';
+                {#url = '/sakila/film/modify';#}
+                type = 'post';
+                {#type = 'put';#}
+                $.ajax({
+                    url: url,
+                    dataType:'json',
+                    type: type,
+                    data: data,
+                    success: function(data){
+                        {#$($local_modal).modal('toggle');#}
+                    },
+                    complete: function(data){
+                        {#location.reload();#}
+                        console.log('data : ', data);
+                        data_results = data.responseJSON
+                        console.log('data.msg : ', data.msg);
+                        console.log('JSON.stringify(data)) : ', JSON.stringify(data));
+                        {#data_results = JSON.parse(data)#}
+                        if(data_results.errors.length > 0){
+                            $('#errors').html(data_results.errors);
+                        }
+                    }
+                });
+            });
 
         });
 

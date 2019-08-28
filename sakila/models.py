@@ -156,8 +156,8 @@ class Customer(models.Model):
     email = models.CharField(max_length=50, blank=True, null=True)
     address_id = models.IntegerField()
     active = models.CharField(max_length=1)
-    create_date = models.TextField()  # This field type is a guess.
-    last_update = models.TextField()  # This field type is a guess.
+    create_date = models.DateTimeField(auto_now_add=True)# This field type is a guess.
+    last_update = models.DateTimeField(auto_now=True)  # This field type is a guess.
 
     objects = CustomerManager()
     # objects_payment_amount = CustomerManager()

@@ -89,18 +89,32 @@ class CustomerForm(ModelForm):
         customer_id = self.data.get('customer_id')
         logger.debug('forms save customer_id : %s ' % customer_id)
 
+        if not customer_id:
+            # 등록이라 채번
+            customer_id = Customer.objects.count()
+            customer = Customer(**self.cleaned_data)
+            customer.customer_id = customer_id + 1
+            customer.store_id = 1
+            customer.address_id = customer.customer_id
+            # obj, created = Customer.objects.create(**self.data)
+            # obj, created = Customer.objects.get_or_create(customer)
+            # obj, created = Customer.objects.get_or_create(defaults__exact='customer_id', defaults={'customer_id': customer_id}, **self.changed_data)
+            created = customer.save()
+            logger.debug('forms save get_or_create : %s ' % created)
+            return created
+
         update_cnt = Customer.objects.filter(pk=customer_id).update(
             first_name=self.cleaned_data.get('first_name'),
             last_name=self.cleaned_data.get('last_name')
         )
         logger.debug('forms save update_cnt : %s ' % update_cnt)
-        if not update_cnt:
-            obj, created = Customer.objects.get_or_create(
-                first_name=self.cleaned_data.get('first_name'),
-                last_name=self.cleaned_data.get('last_name'),
-                defaults={'customer_id': customer_id})
-            logger.debug('forms save get_or_create : %s ' % created)
-            return obj
+        # if not update_cnt:
+        #     obj, created = Customer.objects.get_or_create(
+        #         first_name=self.cleaned_data.get('first_name'),
+        #         last_name=self.cleaned_data.get('last_name'),
+        #         defaults={'customer_id': customer_id})
+        #     logger.debug('forms save get_or_create : %s ' % created)
+        #     return obj
 
         # logger.debug('save customer_id : %s ' % self.cleaned_data.get('customer_id'))
         # update_cnt = Customer.objects.filter(pk=customer_id).update(

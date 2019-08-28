@@ -8,7 +8,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 # from pip._vendor.requests import Response
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView
+from django.views.generic .edit import CreateView
 from django.views import View
 
 from sakila.forms import CustomerForm
@@ -147,18 +148,85 @@ class CustomerAjaxView(View):
         return render(request, 'landing.html', {'form': form})
 
 
+class AjaxableResponseMixin:
+    """
+    Mixin to add AJAX support to a form.
+    Must be used with an object-based FormView (e.g. CreateView)
+    """
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        if self.request.is_ajax():
+            return JsonResponse(form.errors, status=400)
+        else:
+            return response
+
+    def form_valid(self, form):
+        # We make sure to call the parent's form_valid() method because
+        # it might do some processing (in the case of CreateView, it will
+        # call form.save() for example).
+        response = super().form_valid(form)
+        if self.request.is_ajax():
+            data = {
+                'pk': self.object.pk,
+            }
+            return JsonResponse(data)
+        else:
+            return response
+
+
+# class CustomerAjaxCreateView(AjaxableResponseMixin, CreateView):
 class CustomerAjaxCreateView(CreateView):
     """
     Ajax 처리 Create
     """
     model = Customer
-    fields = '__all__'
+    # fields = ['first_name']
     # initial={'date_of_death':'05/01/2018',}
-    initial = {'key': 'value'}
-    form_class = Customer
-
+    # initial = {'key': 'value'}
+    # # form_class = Customer
+    # #
     def get(self, request):
-        form = self.form_class()
+        form = CustomerForm()
+        # form = self.form_class()
         # form = self.form_class(initial=self.initial)
-        return JsonResponse(form,  json_dumps_params={'ensure_ascii': False})
+        data = {
+            'form_as_table': form.as_table(),
+        }
+        return JsonResponse(data,  json_dumps_params={'ensure_ascii': False})
 
+
+    def post(self, request):
+        self.form_class = CustomerForm
+        # initial = {'key': 'value'}
+        if request.is_ajax():
+            # data = {"lat":20.586, "lon":-89.530}
+            # print(request.POST.get('value'))
+            logger.debug(' class name : %s ' % 'CustomerAjaxCreateView')
+            logger.debug(' function name : %s ' % 'post')
+            # film_id = request.POST['film_id']
+            # description = request.POST['description']
+            # special_features = request.POST['special_features']
+
+            form = self.form_class(request.POST)
+
+            if form.is_valid():
+                data = {
+                    "msg": "성공",
+                }
+                form.save()
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': False})
+
+            logger.debug(' error msg : %s ' % form.errors)
+            # film = get_object_or_404(Film, pk=film_id)
+            # form = CustomerForm(request.P)
+            # film.description = description
+            # film.special_features = special_features
+            # film.save()
+            # tmpJson = serializers.serialize("json",film)
+            # tmpObj = json.loads(tmpJson)
+            data = {
+                "msg": "실패",
+                "errors": str(form.errors) # str() 자동형 변환 하지 못하게 함 그러면 html 로 생성됨.
+                # "errors": form.errors
+            }
+            return JsonResponse(data,  json_dumps_params={'ensure_ascii': False})

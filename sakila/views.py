@@ -8,7 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 # from pip._vendor.requests import Response
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from django.views import View
 
 from sakila.forms import CustomerForm
@@ -145,3 +145,20 @@ class CustomerAjaxView(View):
     def get(self, request):
         form = self.form_class(initial=self.initial)
         return render(request, 'landing.html', {'form': form})
+
+
+class CustomerAjaxCreateView(CreateView):
+    """
+    Ajax 처리 Create
+    """
+    model = Customer
+    fields = '__all__'
+    # initial={'date_of_death':'05/01/2018',}
+    initial = {'key': 'value'}
+    form_class = Customer
+
+    def get(self, request):
+        form = self.form_class()
+        # form = self.form_class(initial=self.initial)
+        return JsonResponse(form,  json_dumps_params={'ensure_ascii': False})
+

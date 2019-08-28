@@ -14,5 +14,6 @@ urlpatterns = [
     path('film/modify', views.film_modify, name='film_modify'),
     path('customer/', views.CustomerListView.as_view()),
     path('customerAjax', views.CustomerAjaxView.as_view()),
+    path('customerAjaxCreate', views.CustomerAjaxCreateView.as_view()),
     # path('staff/', views.list_staff, name='staff'),
 ]

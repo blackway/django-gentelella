@@ -103,10 +103,11 @@ class CustomerForm(ModelForm):
             logger.debug('forms save get_or_create : %s ' % created)
             return created
 
-        update_cnt = Customer.objects.filter(pk=customer_id).update(
-            first_name=self.cleaned_data.get('first_name'),
-            last_name=self.cleaned_data.get('last_name')
-        )
+        update_cnt = Customer.objects.filter(pk=customer_id).update(**self.cleaned_data)
+        # update_cnt = Customer.objects.filter(pk=customer_id).update(
+        #     first_name=self.cleaned_data.get('first_name'),
+        #     last_name=self.cleaned_data.get('last_name')
+        # )
         logger.debug('forms save update_cnt : %s ' % update_cnt)
         # if not update_cnt:
         #     obj, created = Customer.objects.get_or_create(

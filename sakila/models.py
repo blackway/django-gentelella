@@ -11,23 +11,63 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import Sum, Func, F, Count
 
 
-class Actor(models.Model):
+class CreateDateComm(models.Model):
+    create_date = models.DateTimeField(auto_now_add=True, verbose_name='등록일자')  # This field type is a guess.
+
+    class Meta:
+        abstract = True
+
+
+class LastUpdateComm(models.Model):
+    last_update = models.DateTimeField(auto_now=True, verbose_name='수정일자')  # This field type is a guess.
+
+    class Meta:
+        abstract = True
+
+
+class Actor(LastUpdateComm):
     actor_id = models.TextField(unique=True)  # This field type is a guess.
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
-    last_update = models.TextField()  # This field type is a guess.
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = 'actor'
 
 
+class Country(models.Model):
+    id = models.SmallIntegerField(primary_key=True, db_column='country_id')
+    # country_id = models.SmallIntegerField(unique=True)
+    country = models.CharField(max_length=50)
+    last_update = models.TextField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'country'
+
+
+class City(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='city_id')
+    # city_id = models.IntegerField(unique=True)
+    city = models.CharField(max_length=50)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, db_column='country_id')
+    # country_id = models.SmallIntegerField()
+    last_update = models.TextField()  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'city'
+
+
 class Address(models.Model):
-    address_id = models.IntegerField(unique=True)
+    id = models.IntegerField(primary_key=True, db_column='address_id')
+    # address_id = models.IntegerField(unique=True)
     address = models.CharField(max_length=50)
     address2 = models.CharField(max_length=50, blank=True, null=True)
     district = models.CharField(max_length=20)
-    city_id = models.IntegerField()
+    city = models.ForeignKey(City, on_delete=models.CASCADE, db_column='city_id')
+    # city_id = models.IntegerField()
     postal_code = models.CharField(max_length=10, blank=True, null=True)
     phone = models.CharField(max_length=20)
     last_update = models.TextField()  # This field type is a guess.
@@ -109,35 +149,28 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
-class Category(models.Model):
-    category_id = models.SmallIntegerField(unique=True)
+class Category(LastUpdateComm):
+    category_id = models.SmallIntegerField(primary_key=True)
+    # category_id = models.SmallIntegerField(unique=True)
     name = models.CharField(max_length=25)
-    last_update = models.TextField()  # This field type is a guess.
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = 'category'
 
 
-class City(models.Model):
-    city_id = models.IntegerField(unique=True)
-    city = models.CharField(max_length=50)
-    country_id = models.SmallIntegerField()
+class Store(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='store_id')
+    # store_id = models.IntegerField(unique=True)
+    manager_staff_id = models.SmallIntegerField()
+    address = models.ForeignKey(Country, on_delete=models.CASCADE, db_column='address_id')
+    # address_id = models.IntegerField()
     last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'city'
-
-
-class Country(models.Model):
-    country_id = models.SmallIntegerField(unique=True)
-    country = models.CharField(max_length=50)
-    last_update = models.TextField(blank=True, null=True)  # This field type is a guess.
-
-    class Meta:
-        managed = False
-        db_table = 'country'
+        db_table = 'store'
 
 
 class CustomerManager(models.Manager):
@@ -147,17 +180,19 @@ class CustomerManager(models.Manager):
         # return super().get_queryset().annotate(total_amount=Sum('payment__amount'))
 
 
-class Customer(models.Model):
+class Customer(CreateDateComm, LastUpdateComm):
     customer_id = models.IntegerField(primary_key=True)
     # customer_id = models.IntegerField(unique=True)
-    store_id = models.IntegerField()
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, db_column='store_id')
+    # store_id = models.IntegerField()
     first_name = models.CharField(max_length=45, verbose_name='첫번째 이름')
     last_name = models.CharField(max_length=45, verbose_name='마지막 이름')
     email = models.CharField(max_length=50, blank=True, null=True)
-    address_id = models.IntegerField()
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, db_column='address_id')
+    # address_id = models.IntegerField()
     active = models.CharField(max_length=1)
-    create_date = models.DateTimeField(auto_now_add=True)# This field type is a guess.
-    last_update = models.DateTimeField(auto_now=True)  # This field type is a guess.
+    # create_date = models.DateTimeField(auto_now_add=True)# This field type is a guess.
+    # last_update = models.DateTimeField(auto_now=True)  # This field type is a guess.
 
     objects = CustomerManager()
     # objects_payment_amount = CustomerManager()
@@ -229,31 +264,46 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
-class Film(models.Model):
-    film_id = models.IntegerField(primary_key=True)
+class Language(LastUpdateComm):
+    id = models.SmallIntegerField(primary_key=True, db_column='language_id')
+    # language_id = models.SmallIntegerField(unique=True)
+    name = models.CharField(max_length=20)
+    # last_update = models.TextField()  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'language'
+
+
+class Film(LastUpdateComm):
+    id = models.IntegerField(primary_key=True, db_column='film_id')
     # film_id = models.IntegerField(unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)  # This field type is a guess.
     release_year = models.CharField(max_length=4, blank=True, null=True)
-    language_id = models.SmallIntegerField()
-    original_language_id = models.SmallIntegerField(blank=True, null=True)
+    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, db_column='language_id')
+    # language_id = models.SmallIntegerField()
+    original_language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, db_column='original_language_id')
+    # original_language_id = models.SmallIntegerField(blank=True, null=True)
     rental_duration = models.SmallIntegerField()
     rental_rate = models.TextField()  # This field type is a guess.
     length = models.SmallIntegerField(blank=True, null=True)
     replacement_cost = models.TextField()  # This field type is a guess.
     rating = models.CharField(max_length=10, blank=True, null=True)
     special_features = models.CharField(max_length=100, blank=True, null=True)
-    last_update = models.TextField()  # This field type is a guess.
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = 'film'
 
 
-class FilmActor(models.Model):
-    actor_id = models.IntegerField()
-    film_id = models.IntegerField()
-    last_update = models.TextField()  # This field type is a guess.
+class FilmActor(LastUpdateComm):
+    actor_id = models.ForeignKey(Actor, on_delete=models.DO_NOTHING)
+    # actor_id = models.IntegerField()
+    film_id = models.ForeignKey(Film, on_delete=models.DO_NOTHING)
+    # film_id = models.IntegerField()
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
@@ -261,10 +311,12 @@ class FilmActor(models.Model):
         unique_together = (('actor_id', 'film_id'),)
 
 
-class FilmCategory(models.Model):
-    film_id = models.IntegerField()
-    category_id = models.SmallIntegerField()
-    last_update = models.TextField()  # This field type is a guess.
+class FilmCategory(LastUpdateComm):
+    film_id = models.ForeignKey(Film, on_delete=models.DO_NOTHING)
+    # film_id = models.IntegerField()
+    category_id = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+    # category_id = models.SmallIntegerField()
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
@@ -283,9 +335,9 @@ class FilmText(models.Model):
 
 
 class Inventory(models.Model):
-    inventory_id = models.IntegerField(unique=True)
-    film_id = models.IntegerField()
-    store_id = models.IntegerField()
+    id = models.IntegerField(primary_key=True, db_column='inventory_id')
+    film = models.ForeignKey(Film, on_delete=models.DO_NOTHING, db_column='film_id')
+    store = models.ForeignKey(Store, on_delete=models.DO_NOTHING, db_column='store_id')
     last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
@@ -293,17 +345,7 @@ class Inventory(models.Model):
         db_table = 'inventory'
 
 
-class Language(models.Model):
-    language_id = models.SmallIntegerField(unique=True)
-    name = models.CharField(max_length=20)
-    last_update = models.TextField()  # This field type is a guess.
-
-    class Meta:
-        managed = False
-        db_table = 'language'
-
-
-class Payment(models.Model):
+class Payment(LastUpdateComm):
     """
     from sakila.models import *
     from django.db.models import Sum, Count
@@ -322,26 +364,11 @@ class Payment(models.Model):
     rental_id = models.IntegerField(blank=True, null=True)
     amount = models.TextField()  # This field type is a guess.
     payment_date = models.TextField()  # This field type is a guess.
-    last_update = models.TextField()  # This field type is a guess.
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = 'payment'
-
-
-class Rental(models.Model):
-    rental_id = models.IntegerField(unique=True)
-    rental_date = models.TextField()  # This field type is a guess.
-    inventory_id = models.IntegerField()
-    customer_id = models.IntegerField()
-    return_date = models.TextField(blank=True, null=True)  # This field type is a guess.
-    staff_id = models.SmallIntegerField()
-    last_update = models.TextField()  # This field type is a guess.
-
-    class Meta:
-        managed = False
-        db_table = 'rental'
-        unique_together = (('rental_date', 'inventory_id', 'customer_id'),)
 
 
 class Staff(models.Model):
@@ -362,12 +389,20 @@ class Staff(models.Model):
         db_table = 'staff'
 
 
-class Store(models.Model):
-    store_id = models.IntegerField(unique=True)
-    manager_staff_id = models.SmallIntegerField()
-    address_id = models.IntegerField()
-    last_update = models.TextField()  # This field type is a guess.
+class Rental(LastUpdateComm):
+    rental_id = models.IntegerField(unique=True)
+    rental_date = models.TextField()  # This field type is a guess.
+    inventory = models.ForeignKey(Inventory, on_delete=models.DO_NOTHING, db_column='inventory_id')
+    customer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING, db_column='customer_id')
+    return_date = models.TextField(blank=True, null=True)  # This field type is a guess.
+    staff = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, db_column='staff_id')
+    # last_update = models.TextField()  # This field type is a guess.
 
     class Meta:
         managed = False
-        db_table = 'store'
+        db_table = 'rental'
+        unique_together = (('rental_date', 'inventory_id', 'customer_id'),)
+
+
+
+

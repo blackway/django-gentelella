@@ -1,3 +1,96 @@
+insert into "language-20190904-01"
+select * from language;
+
+-- auto-generated definition
+create table language
+(
+    language_id integer  not null
+        primary key autoincrement ,
+    name        VARCHAR(20)  not null,
+    last_update TIMESTAMP not null
+);
+
+select * from "language-20190904-01";
+
+
+insert into "film_20190904-01"
+select * from film;
+
+
+ALTER TABLE film ADD CONSTRAINT fk_child_parent
+                  FOREIGN KEY (parent_id)
+                  REFERENCES parent(id);
+
+-- auto-generated definition
+create table film
+(
+    film_id              integer primary key autoincrement ,
+    title                VARCHAR(255) not null,
+    description          BLOB SUB_TYPE TEXT default NULL,
+    release_year         VARCHAR(4)         default NULL,
+    language_id          SMALLINT     not null
+        constraint fk_film_language
+            references language (language_id),
+    original_language_id SMALLINT           default NULL
+        constraint fk_film_language_original
+            references language (language_id),
+    rental_duration      SMALLINT           default 3 not null,
+    rental_rate          DECIMAL(4, 2)      default 4.99 not null,
+    length               SMALLINT           default NULL,
+    replacement_cost     DECIMAL(5, 2)      default 19.99 not null,
+    rating               VARCHAR(10)        default 'G',
+    special_features     VARCHAR(100)       default NULL,
+    last_update          TIMESTAMP    not null,
+    constraint CHECK_special_features
+        check (special_features is null or
+               special_features like '%Trailers%' or
+               special_features like '%Commentaries%' or
+               special_features like '%Deleted Scenes%' or
+               special_features like '%Behind the Scenes%'),
+    constraint CHECK_special_rating
+        check (rating in ('G', 'PG', 'PG-13', 'R', 'NC-17'))
+);
+
+
+
+create index idx_fk_language_id
+    on film (language_id);
+
+create index idx_fk_original_language_id
+    on film (original_language_id);
+
+
+select t1.*
+  from "film_20190904-01" t1;
+
+
+
+
+
+INSERT INTO "polls_question" ("question_text", "pub_date") VALUES ('test1', '2019-09-04 15:16:16');
+
+
+drop table polls_choice;
+
+-- auto-generated definition
+create table polls_choice
+(
+    choice_id   integer      not null
+        primary key autoincrement,
+    choice_text varchar(200) not null,
+    votes       integer      not null,
+    question_id integer      not null
+        references polls_question (question_id)
+            deferrable initially deferred
+);
+
+create index polls_choice_question_id_c5b4b260
+    on polls_choice (question_id);
+
+
+
+
+
 select t1.customer_id
       ,max(t1.first_name) as first_name
       ,max(t1.last_name) as last_name
@@ -135,9 +228,9 @@ SELECT "film"."last_update",
        T3."last_update",
        T3."language_id",
        T3."name"
-FROM "film"
-         INNER JOIN "language" ON ("film"."language_id" = "language"."language_id")
-         INNER JOIN "language" T3 ON ("film"."original_language_id" = T3."language_id")
+FROM film
+         INNER JOIN language ON ("film"."language_id" = "language"."language_id")
+         INNER JOIN language T3 ON ("film"."original_language_id" = T3."language_id")
 LIMIT 21;
 
 
@@ -163,7 +256,7 @@ SELECT "film"."last_update",
        "film"."replacement_cost",
        "film"."rating",
        "film"."special_features"
-FROM "film"
+FROM film
 LIMIT 21;
 
 select t1.*
@@ -191,8 +284,13 @@ SELECT "film"."last_update",
        "film"."replacement_cost",
        "film"."rating",
        "film"."special_features"
-FROM "film"
+FROM film
 WHERE "film"."language_id" IN (1);
 
 select count(0)
   from film t1 ;
+
+
+select t1.*
+  from polls_choice t1
+  join polls_question t2 on t1.question_id = t2.question_id;

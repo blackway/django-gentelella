@@ -265,7 +265,9 @@ class DjangoSession(models.Model):
 
 
 class Language(LastUpdateComm):
-    id = models.SmallIntegerField(primary_key=True, db_column='language_id')
+    # language_id = models.SmallIntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True, db_column='language_id')
+    # id = models.SmallIntegerField(primary_key=True, db_column='language_id')
     # language_id = models.SmallIntegerField(unique=True)
     name = models.CharField(max_length=20)
     # last_update = models.TextField()  # This field type is a guess.
@@ -274,16 +276,22 @@ class Language(LastUpdateComm):
         managed = False
         db_table = 'language'
 
+    def __str__(self):
+        return '%s' % (self.name)
 
-class Film(LastUpdateComm):
+
+class Film(models.Model):
     id = models.IntegerField(primary_key=True, db_column='film_id')
     # film_id = models.IntegerField(unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)  # This field type is a guess.
     release_year = models.CharField(max_length=4, blank=True, null=True)
-    language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, db_column='language_id')
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    # language = models.ForeignKey(Language, on_delete=models.CASCADE, db_column='language_id')
     # language_id = models.SmallIntegerField()
-    original_language = models.ForeignKey(Language, on_delete=models.DO_NOTHING, db_column='original_language_id')
+    # original_language = models.ForeignKey(Language, on_delete=models.CASCADE, db_column='original_language_id', null=True)
+    original_language = models.ForeignKey(Language, on_delete=models.CASCADE, db_column='original_language_id',
+                                          related_name='language_as_original_language', blank=True, null=True)
     # original_language_id = models.SmallIntegerField(blank=True, null=True)
     rental_duration = models.SmallIntegerField()
     rental_rate = models.TextField()  # This field type is a guess.
@@ -292,10 +300,21 @@ class Film(LastUpdateComm):
     rating = models.CharField(max_length=10, blank=True, null=True)
     special_features = models.CharField(max_length=100, blank=True, null=True)
     # last_update = models.TextField()  # This field type is a guess.
+    last_update = models.DateTimeField(auto_now=True, verbose_name='수정일자')  # This field type is a guess.
 
     class Meta:
         managed = False
         db_table = 'film'
+
+    def __str__(self):
+        """
+        객체 클래스 기본 내용 출력
+        :return:
+        """
+        return '%s - %s' % (self.id, self.title)
+
+    def language_name(self):
+        return self.language.name
 
 
 class FilmActor(LastUpdateComm):
@@ -401,7 +420,8 @@ class Rental(LastUpdateComm):
     class Meta:
         managed = False
         db_table = 'rental'
-        unique_together = (('rental_date', 'inventory_id', 'customer_id'),)
+        unique_together = (('rental_date', 'inventory', 'customer'),)
+        # unique_together = (('rental_date', 'inventory_id', 'customer_id'),)
 
 
 

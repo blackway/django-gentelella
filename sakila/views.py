@@ -4,18 +4,23 @@ import logging
 
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 # from pip._vendor.requests import Response
 from django.views.generic import ListView
 from django.views.generic .edit import CreateView
 from django.views import View
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from sakila.forms import CustomerForm
+from sakila.permissions import UserIsOwnerTodo, IsOwnerOrReadOnly
 from .models import Customer
 
 from .models import Film
+
+from .serializers import FilmSerializer
+from rest_framework import generics
 
 logger = logging.getLogger('default')
 # logger = logging.getLogger(__name__)
@@ -230,3 +235,27 @@ class CustomerAjaxCreateView(CreateView):
                 # "errors": form.errors
             }
             return JsonResponse(data,  json_dumps_params={'ensure_ascii': False})
+
+
+class FilmListApi(generics.ListCreateAPIView):
+    logger.debug('@@@@@@@@@@ FilmListApi ')
+    # queryset = Film.objects.all()
+    serializer_class = FilmSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
+    # permission_classes = (IsAuthenticated, UserIsOwnerTodo)
+
+    def get_queryset(self):
+        logger.debug('@@@@@@@@@@ FilmListApi.get_queryset ')
+        return Film.objects.all()
+
+
+# class FilmDetailApi(generics.RetrieveAPIView):
+class FilmDetailApi(generics.RetrieveUpdateDestroyAPIView):
+    logger.debug('@@@@@@@@@@ FilmDetailApi ')
+    queryset = Film.objects.all()
+    serializer_class = FilmSerializer
+
+    # def get_queryset(self, pk):
+    #     logger.debug('@@@@@@@@@@ FilmDetailApi.get_queryset ')
+    #     return Film.objects.all(pk)

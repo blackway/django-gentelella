@@ -9,7 +9,10 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Language)
 def language_post_save( sender, **kwargs ):
     logger.debug('@@@@@@@@@@@@@@ language_post_save ')
-    # location = kwargs[ 'instance' ].location
+    # logger.debug('@@@@@@@@@@@@@@ kwargs ' % kwargs)
+    instance = kwargs['instance']
+    # location = kwargs['instance'].location
+    logger.debug('@@@@@@@@@@@@@@ instance %s' % instance)
     # location.num_pizzazip += 1
     # location.save( )
 

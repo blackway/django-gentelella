@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.urls import path
 from django.contrib import admin
 
+import sakila
 from . import settings
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -26,7 +29,11 @@ urlpatterns = [
     url(r'^sakila/', include('sakila.urls')),
     url(r'^', include('sakila.urls')),
     # url(r'^', include('app.urls')),
-
+    url(r'^api-auth/', include('rest_framework.urls')),
+    path('api/film/', sakila.views.FilmListApi.as_view()),
+    path('api/film/<int:pk>', sakila.views.FilmDetailApi.as_view()),
+    # url(r'^api/film/$', sakila.views.FilmListApi.as_view()),
+    # url(r'^api/film(?P<pk>[-\w]+)/$', sakila.views.FilmDetailApi.as_view()),
 ]
 
 if settings.DEBUG:

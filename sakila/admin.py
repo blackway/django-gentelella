@@ -1,6 +1,11 @@
 from django.contrib import admin
 from django import forms as django_forms
+from django.db.models import Count
 from django.forms import BaseModelFormSet
+# from django_filters import DateRangeFilter
+from rangefilter.filter import DateRangeFilter
+
+from conf import settings
 from .models import Film, Language
 
 
@@ -17,6 +22,10 @@ class MyAdminFormSet(BaseModelFormSet):
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('name', 'last_update', )
     exclude = ('id', )
+
+
+class DateTimeRangeFilter(object):
+    pass
 
 
 @admin.register(Film)
@@ -48,7 +57,10 @@ class FilmAdmin(admin.ModelAdmin):
 
     # fields = ('title', 'description', 'release_year', 'language_name', 'original_language_id', 'replacement_cost', 'special_features', )
 
-    list_display = ('title', 'description', 'release_year', 'language', 'original_language', 'replacement_cost', 'special_features', )
+    line_numbering = 0
+    list_per_page = settings.LIST_PER_PAGE
+    # list_per_page = 10  # record 10 per page
+    list_display = ('line_number', 'title', 'description', 'release_year', 'language', 'original_language', 'replacement_cost', 'special_features', 'last_update', )
     # exclude = ('id',)
     # list_select_related = ('language',)
     # readonly_fields = ('parent',)
@@ -57,13 +69,30 @@ class FilmAdmin(admin.ModelAdmin):
     # inline_reverse = ['language_name']  # could do [('book', {'fields': ['title', 'authors'})] if you only wanted to show certain fields in the create admin
 
     list_editable = ('language', 'original_language', )
+    readonly_fields = ('line_number',)
     # list_editable = ('special_features', )
     # list_filter = ('last_update', 'release_year', 'language_id',)
     # list_filter = ('last_update', 'release_year', 'language',)
     # list_editable = ('req_status', )
+    list_filter = (
+        'language',
+        ('last_update', DateRangeFilter),
+        # ('last_update', DateTimeRangeFilter),
+        # ('birth_date', DateRangeFilter),
+    )
     ordering = ['-last_update', ]
     search_fields = ['title', ]
     date_hierarchy = 'last_update'
+
+    def line_number(self, obj):
+        self.line_numbering += 1
+        return self.line_numbering
+
+    line_number.short_description = '#'
+
+    # def get_queryset(self, request):
+    #     qs = super(FilmAdmin, self).get_queryset(request)
+    #     return qs.annotate(books_count=Count('id'))
 
     # 드롭 다운에서 ForeignKey 표시 텍스트를 변경하는 방법은 무엇입니까?
     # def formfield_for_foreignkey(self, db_field, request, **kwargs):

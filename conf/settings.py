@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'rest_framework.authtoken',
     'rest_framework',
+    'rangefilter',
     'app',
     'sakila',
     'aggregation',
@@ -207,3 +208,5 @@ DEBUG_TOOLBAR_CONFIG = {
     # Panel options
     'SQL_WARNING_THRESHOLD': 100,  # milliseconds
 }
+
+LIST_PER_PAGE = 20

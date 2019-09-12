@@ -58,10 +58,11 @@ def gentella_html(request):
     elif load_template == 'tables_dynamic_customer_list.html':
         # list = CustomerList.objects.all()
         # sqlite3 3.25 버전이상에서 Window 함수를 사용할수 있음.
-        list = CustomerList.
-
-
-        er', 'id')
+        list = CustomerList.objects.annotate(row_number=Window(
+            expression=RowNumber(),
+            partition_by=[F('sid')],
+            order_by=F('id').desc())
+        ).order_by('row_number', 'id')
         # ).order_by('row_number', 'client')
 
         list_cnt = CustomerList.objects.count()

@@ -1,3 +1,9 @@
+select * from staff;
+
+select * from staff_list;
+
+
+
 insert into "language-20190904-01"
 select * from language;
 

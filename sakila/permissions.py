@@ -1,10 +1,12 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
 
+
 class UserIsOwnerTodo(BasePermission):
 
     def has_object_permission(self, request, view, todo):
         return request.user.id == todo.user.id
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """

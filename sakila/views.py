@@ -2,6 +2,11 @@
 import json
 import logging
 
+from django.db.models.expressions import Window
+from django.db.models.functions import RowNumber
+from django.db.models import F
+
+
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, JsonResponse, Http404
@@ -14,6 +19,7 @@ from django.views import View
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from sakila.forms import CustomerForm
+from sakila.models_views import CustomerList
 from sakila.permissions import UserIsOwnerTodo, IsOwnerOrReadOnly
 from .models import Customer
 
@@ -29,7 +35,7 @@ logger = logging.getLogger('default')
 
 
 def index(request):
-    print('@@@@@@@@@@@@@@@@')
+    print('@@@@@@@@@@@@@@@@ sakila')
     context = {}
     template = loader.get_template('sakila/index.html')
     return HttpResponse(template.render(context, request))
@@ -49,6 +55,19 @@ def gentella_html(request):
         list_cnt = Film.objects.count()
         logger.debug(' function name list_cnt : %s ' % list_cnt)
         context = {'list': list}
+    elif load_template == 'tables_dynamic_customer_list.html':
+        # list = CustomerList.objects.all()
+        # sqlite3 3.25 버전이상에서 Window 함수를 사용할수 있음.
+        list = CustomerList.
+
+
+        er', 'id')
+        # ).order_by('row_number', 'client')
+
+        list_cnt = CustomerList.objects.count()
+        logger.debug(' function name list_cnt : %s ' % list_cnt)
+        context = {'list': list}
+        pass
 
     template = loader.get_template('sakila/' + load_template)
     return HttpResponse(template.render(context, request))

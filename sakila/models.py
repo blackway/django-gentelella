@@ -391,7 +391,8 @@ class Payment(LastUpdateComm):
 
 
 class Staff(models.Model):
-    staff_id = models.SmallIntegerField(unique=True)
+    id = models.SmallIntegerField(primary_key=True, db_column='staff_id')
+    # staff_id = models.SmallIntegerField(unique=True)
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
     address_id = models.IntegerField()
@@ -409,7 +410,8 @@ class Staff(models.Model):
 
 
 class Rental(LastUpdateComm):
-    rental_id = models.IntegerField(unique=True)
+    id = models.IntegerField(primary_key=True, db_column='rental_id')
+    # rental_id = models.IntegerField(unique=True)
     rental_date = models.TextField()  # This field type is a guess.
     inventory = models.ForeignKey(Inventory, on_delete=models.DO_NOTHING, db_column='inventory_id')
     customer = models.ForeignKey(Customer, on_delete=models.DO_NOTHING, db_column='customer_id')

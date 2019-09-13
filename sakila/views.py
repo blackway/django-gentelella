@@ -17,6 +17,7 @@ from django.views.generic import ListView
 from django.views.generic .edit import CreateView
 from django.views import View
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from sakila.forms import CustomerForm
 from sakila.models_views import CustomerList
@@ -68,6 +69,18 @@ def gentella_html(request):
         list_cnt = CustomerList.objects.count()
         logger.debug(' function name list_cnt : %s ' % list_cnt)
         context = {'list': list}
+    elif load_template == 'tables_dynamic_customer_list2.html':
+        # # list = CustomerList.objects.all()
+        # # sqlite3 3.25 버전이상에서 Window 함수를 사용할수 있음.
+        # list = CustomerList.objects.annotate(row_number=Window(
+        #     expression=RowNumber(),
+        #     partition_by=[F('sid')],
+        #     order_by=F('id').desc())
+        # ).order_by('row_number', 'id')
+        # # ).order_by('row_number', 'client')
+        # list_cnt = CustomerList.objects.count()
+        # logger.debug(' function name list_cnt : %s ' % list_cnt)
+        # context = {'list': list}
         pass
 
     template = loader.get_template('sakila/' + load_template)
@@ -265,9 +278,20 @@ class FilmListApi(generics.ListCreateAPIView):
                           IsOwnerOrReadOnly]
     # permission_classes = (IsAuthenticated, UserIsOwnerTodo)
 
-    def get_queryset(self):
+    def get_queryset(self, request):
         logger.debug('@@@@@@@@@@ FilmListApi.get_queryset ')
-        return Film.objects.all()
+        # OFFSET 5 / LIMIT 5
+        req_draw = int(request.GET['draw'])
+        req_start = int(request.GET['start'])
+        req_length = int(request.GET['length'])
+        return Film.objects.all()[req_start:req_length + req_start]
+
+    def list(self, request):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        queryset = self.get_queryset(request)
+        serializer = FilmSerializer(queryset, many=True)
+        return Response({'data': serializer.data})
+
 
 
 # class FilmDetailApi(generics.RetrieveAPIView):

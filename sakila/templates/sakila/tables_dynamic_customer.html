@@ -3289,6 +3289,11 @@
                 $(this).toggleClass('selected');
             } );
             */
+            $('#datatable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "ajax": "../server_side/scripts/server_processing.php"
+            });
 
             $('#datatable_select_rows').click( function () {
                 alert( table.rows('.selected').data().length +' row(s) selected' );

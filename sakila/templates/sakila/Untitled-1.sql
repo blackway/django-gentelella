@@ -1,3 +1,22 @@
+SELECT "customer_list"."ID",
+       "customer_list"."name",
+       "customer_list"."address",
+       "customer_list"."zip_code",
+       "customer_list"."phone",
+       "customer_list"."city",
+       "customer_list"."country",
+       "customer_list"."notes",
+       "customer_list"."SID",
+       ROW_NUMBER() OVER (PARTITION BY "customer_list"."SID" ORDER BY "customer_list"."ID" DESC) AS "row_number"
+FROM "customer_list"
+ORDER BY "row_number" ASC, "customer_list"."ID" ASC;
+
+select t1.*
+  from customer_list t1
+ where 1=1
+   and t1.id='604';
+
+
 select * from staff;
 
 select * from staff_list;

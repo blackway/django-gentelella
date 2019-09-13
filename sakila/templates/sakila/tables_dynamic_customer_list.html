@@ -223,7 +223,7 @@
                            <td class="a-center ">
                              <input type="checkbox" class="flat" name="table_records">
                             </td>
-                            <input type="hidden" name="film_id" value="{{ row.customer_id }}">
+                            <input type="hidden" name="film_id" value="{{ row.id }}">
                             <td>{{ row.row_number }}</td>
 {#                            <td>{{ forloop.counter }}</td>#}
                             <td>{{ row.name }}</td>
@@ -3176,8 +3176,8 @@
                 $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());
                 {#$($local_modal).find('div > div > div.modal-body > h4').text($(this).find('td').eq(1).text());#}
                 {#$($local_modal).find('div > div > div.modal-body > p:nth-child(2)').text($(this).find('td').eq(2).text());#}
-                $("#modal_special_features").val($(this).find('td').eq(1).text());
-                $("#modal_description").text($(this).find('td').eq(2).text());
+                $("#modal_special_features").val($(this).find('td').eq(2).text());
+                $("#modal_description").text($(this).find('td').eq(3).text());
                 $($local_modal).modal();
 
             });

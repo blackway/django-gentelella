@@ -26,7 +26,7 @@ from .models import Customer
 
 from .models import Film
 
-from .serializers import FilmSerializer
+from .serializers import FilmSerializer, CustomerListSerializer
 from rest_framework import generics
 
 logger = logging.getLogger('default')
@@ -284,7 +284,9 @@ class FilmListApi(generics.ListCreateAPIView):
         req_draw = int(request.GET['draw'])
         req_start = int(request.GET['start'])
         req_length = int(request.GET['length'])
-        return Film.objects.all()[req_start:req_length + req_start]
+        req_search_value = str(request.GET['search[value]'])
+        logger.debug('req_search_value : %s' % req_search_value)
+        return Film.objects.filter(title__icontains=req_search_value)[req_start:req_length + req_start]
 
     def list(self, request):
         # Note the use of `get_queryset()` instead of `self.queryset`
@@ -303,3 +305,28 @@ class FilmDetailApi(generics.RetrieveUpdateDestroyAPIView):
     # def get_queryset(self, pk):
     #     logger.debug('@@@@@@@@@@ FilmDetailApi.get_queryset ')
     #     return Film.objects.all(pk)
+
+
+class CustomerListListApi(generics.ListCreateAPIView):
+    logger.debug('@@@@@@@@@@ FilmListApi ')
+    # queryset = Film.objects.all()
+    serializer_class = CustomerListSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
+    # permission_classes = (IsAuthenticated, UserIsOwnerTodo)
+
+    def get_queryset(self, request):
+        logger.debug('@@@@@@@@@@ FilmListApi.get_queryset ')
+        # OFFSET 5 / LIMIT 5
+        req_draw = int(request.GET['draw'])
+        req_start = int(request.GET['start'])
+        req_length = int(request.GET['length'])
+        req_search_value = str(request.GET['search[value]'])
+        logger.debug('req_search_value : %s' % req_search_value)
+        return CustomerList.objects.filter(name__icontains=req_search_value)[req_start:req_length + req_start]
+
+    def list(self, request):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        queryset = self.get_queryset(request)
+        serializer = CustomerListSerializer(queryset, many=True)
+        return Response({'data': serializer.data})

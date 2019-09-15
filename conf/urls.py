@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/film/<int:pk>', sakila.views.FilmDetailApi.as_view()),
     # url(r'^api/film/$', sakila.views.FilmListApi.as_view()),
     # url(r'^api/film(?P<pk>[-\w]+)/$', sakila.views.FilmDetailApi.as_view()),
+    path('api/customerList/', sakila.views.CustomerListListApi.as_view()),
 ]
 
 if settings.DEBUG:

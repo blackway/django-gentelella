@@ -301,131 +301,6 @@
     </script>
 
     {% csrf_token %}
-
-    <script language="javascript">
-
-        //합수 정의
-        function drawCallback(){
-            var table = $('#datatable').DataTable();
-
-            $('#datatable_select_rows').click( function () {
-                {#alert( table.rows('input[name="table_records"]:checked').data().length +' row(s) selected' );#}
-                alert( table.rows('.selected').data().length +' row(s) selected' );
-            } );
-
-            var checkbox_selector = 'input[name="table_records"]';
-            $(checkbox_selector).click(function(){
-
-                var index = $(checkbox_selector).index(this);
-
-                console.log('index : ', index);
-                {#if($(checkbox_selector).eq(index).prop('checked')){#}
-                {#    table.rows( index )#}
-                {#        .nodes()#}
-                {#        .to$()#}
-                {#        .addClass( 'selected' );#}
-                {#}else{#}
-                {#    table.rows( index )#}
-                {#        .nodes()#}
-                {#        .to$()#}
-                {#        .removeClass( 'selected' );#}
-                {#}#}
-            });
-
-            $(checkbox_selector).change(function(e) {
-                console.log(e.type);
-                var index = $(checkbox_selector).index(this);
-
-                console.log('index : ', index);
-                {#if($(checkbox_selector).eq(index).prop('checked')){#}
-                {#    table.rows( index )#}
-                {#        .nodes()#}
-                {#        .to$()#}
-                {#        .addClass( 'selected' );#}
-                {#}else{#}
-                {#    table.rows( index )#}
-                {#        .nodes()#}
-                {#        .to$()#}
-                {#        .removeClass( 'selected' );#}
-                {#}#}
-            });
-
-            $('#datatable tbody').on( 'click', 'td', function (e) {
-                console.log(' cell click : ', e.type);
-                console.log(' cell click this : ', $(this).find('input').val());
-                console.log(' cell click this : ', $(this).find('input').prop('checked'));
-                console.log( table.cell( this ).data() );
-
-                console.log("$(this).closest('tr') : ", $(this).closest('tr'));
-                var index = $('#datatable tbody tr').index(this.closest('tr'));
-                console.log('cell click 에 속한 행 index : ', index);
-
-                if($(this).find('input').prop('checked')){
-                    table.rows( index )
-                        .nodes()
-                        .to$()
-                        .addClass( 'selected' );
-                }else{
-                    table.rows( index )
-                        .nodes()
-                        .to$()
-                        .removeClass( 'selected' );
-                }
-            } );
-
-            //수정 모달 팝업
-            $local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";
-            $('#datatable > tbody > tr').click(function () {
-                console.log('수정 팝업')
-                var text = $(this).find('td').eq(0).text() + ' : ' + $(this).find('td').eq(2).text();
-                $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());
-                $("#modal_special_features").val($(this).find('td').eq(2).text());
-                $("#modal_description").text($(this).find('td').eq(3).text());
-                $($local_modal).modal();
-
-            });
-        }
-
-
-
-        $(document).ready(function() {
-            $('#datatable').DataTable( {
-            {#$('#example').DataTable( {#}
-                        "processing": true,
-                        "serverSide": true,
-                "ajax": "api/customerList/",
-                {#"ajax": "api/film/",#}
-                "columns": [
-                    {#{ "data": "checkbox" },#}
-                    { "data": "id" },
-                    { "data": "name" },
-                    { "data": "address" },
-                    { "data": "zip_code" },
-                    { "data": "phone" },
-                    { "data": "notes" }
-                ],
-                "columnDefs": [ {
-                   'targets': 0,
-                    'searchable': false,
-                    'orderable': false,
-                    {#'className': 'dt-body-center',#}
-                    className: 'select-checkbox',
-                    'render': function (data, type, full, meta) {
-                        if (data > 0) {//마감일이 지나지 않은 수업일자
-                            return '<input type="checkbox" class="flat" name="table_records" value="' + $('<div/>').text(data).html() + '">';
-                        } else {
-                            return "마감";
-                        }
-                    }
-                } ],
-                "drawCallback": function(settings) {
-                   //do whatever
-                    drawCallback();
-                },
-            } );
-        } );
-    </script>
-
     <script language="javascript">
         $(document).ready(function () {
             var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -577,6 +452,109 @@
             {#} );#}
         });
 
+
+$(document).ready(function() {
+    $('#datatable').DataTable( {
+    {#$('#example').DataTable( {#}
+                "processing": true,
+                "serverSide": true,
+        "ajax": "api/customerList/",
+        {#"ajax": "api/film/",#}
+        "columns": [
+            {#{ "data": "checkbox" },#}
+            { "data": "id" },
+            { "data": "name" },
+            { "data": "address" },
+            { "data": "zip_code" },
+            { "data": "phone" },
+            { "data": "notes" }
+        ],
+        "columnDefs": [ {
+           'targets': 0,
+            'searchable': false,
+            'orderable': false,
+            {#'className': 'dt-body-center',#}
+            className: 'select-checkbox',
+            'render': function (data, type, full, meta) {
+                if (data > 0) {//마감일이 지나지 않은 수업일자
+                    return '<input type="checkbox" class="flat" name="table_records" value="' + $('<div/>').text(data).html() + '">';
+                } else {
+                    return "마감";
+                }
+            }
+        } ],
+        "drawCallback": function(settings) {
+           //do whatever
+            var table = $('#datatable').DataTable();
+
+            $('#datatable_select_rows').click( function () {
+                {#alert( table.rows('input[name="table_records"]:checked').data().length +' row(s) selected' );#}
+                alert( table.rows('.selected').data().length +' row(s) selected' );
+            } );
+
+            $('input[name="table_records"]').click(function(){
+
+                var index = $('input[name="table_records"]').index(this);
+
+                console.log('index : ', index);
+                if($('input[name="table_records"]').eq(5).prop('checked')){
+                    table.rows( index )
+                        .nodes()
+                        .to$()
+                        .addClass( 'selected' );
+                }else{
+                    table.rows( index )
+                        .nodes()
+                        .to$()
+                        .removeClass( 'selected' );
+                }
+            });
+        },
+        {#select: {#}
+        {#    style:    'os',#}
+        {#    selector: 'td:first-child'#}
+        {#},#}
+        {#select: true,#}
+        {#buttons: [#}
+        {#    {#}
+        {#        text: 'Get selected data',#}
+        {#        action: function () {#}
+        {#            var count = table.rows( { selected: true } ).count();#}
+        {##}
+        {#            events.prepend( '<div>'+count+' row(s) selected</div>' );#}
+        {#        }#}
+        {#    }#}
+        {#]#}
+        {#columnDefs: [ {#}
+        {#            orderable: false,#}
+        {#            className: 'select-checkbox',#}
+        {#            targets:   0#}
+        {#        } ],#}
+        {#select: {#}
+        {#    style:    'os',#}
+        {#    selector: 'td:first-child'#}
+        {#},#}
+
+        {#"ajax": "media/data/objects.txt",#}
+        {#"columns": [#}
+        {#    { "data": "name" },#}
+        {#    { "data": "position" },#}
+        {#    { "data": "office" },#}
+        {#    { "data": "extn" },#}
+        {#    { "data": "start_date" },#}
+        {#    { "data": "salary" }#}
+        {#]        #}
+    } );
+
+
+
+} );
+
+{#"processing": true,#}
+
+          {#"ajax": "api/film/"#}
+            {#"ajax": "http://localhost:8100/api/albums/?format=datatables"#}
+            {#"ajax": "http://datatables.net/examples/server_side/scripts/server_processing.php>"#}
     </script>
 
 

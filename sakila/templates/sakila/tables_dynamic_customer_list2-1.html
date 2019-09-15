@@ -1,0 +1,281 @@
+{% extends "sakila/base_site.html" %}
+
+{% block title %} Table Dynamic {% endblock title %}
+
+{% block stylesheets %}
+  {{ block.super }}
+  <link href="/static/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet">
+  <link href="/static/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css" rel="stylesheet">
+  <link href="/static/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css" rel="stylesheet">
+  <link href="/static/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css" rel="stylesheet">
+  <link href="/static/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+<<table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Extn.</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Extn.</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+    </table>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ block.super }}
+  <!-- Datatables -->
+  <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+  <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons/js/buttons.flash.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons/js/buttons.html5.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons/js/buttons.print.min.js"></script>
+  <script src="/static/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js"></script>
+  <script src="/static/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+  <script src="/static/vendors/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+  <script src="/static/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js"></script>
+  <script src="/static/vendors/datatables.net-scroller/js/dataTables.scroller.min.js"></script>
+  <script src="/static/vendors/jszip/dist/jszip.min.js"></script>
+  <script src="/static/vendors/pdfmake/build/pdfmake.min.js"></script>
+  <script src="/static/vendors/pdfmake/build/vfs_fonts.js"></script>
+
+<!-- s: me -->
+    <script>
+         // using jQuery
+          function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          }
+          function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+          }
+          $(document).ready(function() {
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+              beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+              }
+            });
+          });
+    </script>
+
+    {% csrf_token %}
+    <script language="javascript">
+        $(document).ready(function () {
+            var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+            {#alert('a');#}
+            {#alert($('#datatable > tbody > tr').length);#}
+            $local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";
+
+            $('#datatable > tbody > tr').click(function () {
+                var text = $(this).find('td').eq(0).text() + ' : ' + $(this).find('td').eq(2).text();
+                {#alert(text);#}
+                {#$local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";#}
+                $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());
+                {#$($local_modal).find('div > div > div.modal-body > h4').text($(this).find('td').eq(1).text());#}
+                {#$($local_modal).find('div > div > div.modal-body > p:nth-child(2)').text($(this).find('td').eq(2).text());#}
+                $("#modal_special_features").val($(this).find('td').eq(2).text());
+                $("#modal_description").text($(this).find('td').eq(3).text());
+                $($local_modal).modal();
+
+            });
+
+            // Modal의 Submit 버튼 클릭
+            var modal_submit = 'body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg > div > div > div.modal-footer > button.btn.btn-primary';
+            $(modal_submit).click(function(){
+
+                var data = {
+                    'customer_id': $('#datatable > tbody > tr:nth-child(1) > input[type=hidden]').val(),
+                    'first_name': $("#modal_special_features").val(),
+                    'last_name': $("#modal_description").val()
+                };
+                url = '/sakila/customerAjax';
+                {#url = '/sakila/film/modify';#}
+                type = 'post';
+                {#type = 'put';#}
+                $.ajax({
+                    url: url,
+                    dataType:'json',
+                    type: type,
+                    data: data,
+                    success: function(data){
+                        {#$($local_modal).modal('toggle');#}
+                    },
+                    complete: function(data){
+                        {#location.reload();#}
+                        console.log('data : ', data);
+                        data_results = data.responseJSON
+                        console.log('data.msg : ', data.msg);
+                        console.log('JSON.stringify(data)) : ', JSON.stringify(data));
+                        {#data_results = JSON.parse(data)#}
+                        if(data_results.errors.length > 0){
+                            $('#errors').html(data_results.errors);
+                        }
+                    }
+                });
+            });
+
+
+            $('#create_modal').on('show.bs.modal', function(){
+                console.log('show.bs.modal');
+            });
+
+            this.onclick_create_modal = function(){
+                console.log('onclick_create_modal');
+                $('#errors').html('');
+                 var data = {
+                };
+                url = '/sakila/customerAjaxCreate';
+                type = 'get';
+                $.ajax({
+                    url: url,
+                    dataType:'json',
+                    type: type,
+                    data: data,
+                    success: function(data){
+                        //$($local_modal).modal('toggle');
+                    },
+                    complete: function(data){
+                        //location.reload();
+                        console.log('data : ', data);
+                        data_results = data.responseJSON
+                        console.log('data.msg : ', data.msg);
+                        console.log('JSON.stringify(data)) : ', JSON.stringify(data));
+                        //data_results = JSON.parse(data);
+                        if(data_results.form_as_table.length > 0){
+                            $('#create_modal_form > div.modal-body > table').html(data_results.form_as_table);
+                        }
+                    }
+                });
+            };
+
+            //#create_modal_form
+            //등록
+            var modal_submit = '#create_modal_form > div.modal-footer > button.btn.btn-primary';
+            $(modal_submit).click(function(){
+
+                var data = $("#create_modal_form").serialize();
+                url = '/sakila/customerAjaxCreate';
+                {#url = '/sakila/film/modify';#}
+                type = 'post';
+                {#type = 'put';#}
+                $.ajax({
+                    url: url,
+                    dataType:'json',
+                    type: type,
+                    data: data,
+                    success: function(data){
+                        {#$($local_modal).modal('toggle');#}
+                    },
+                    complete: function(data){
+                        {#location.reload();#}
+                        console.log('data : ', data);
+                        data_results = data.responseJSON
+                        console.log('data.msg : ', data.msg);
+                        console.log('JSON.stringify(data)) : ', JSON.stringify(data));
+                        {#data_results = JSON.parse(data)#}
+                        if(data_results.errors.length > 0){
+                            $('#errors').html(data_results.errors);
+                        }
+                    }
+                });
+            });
+
+
+            {#$('#datatable').DataTable( {#}
+            {#    "processing": true,#}
+            {#    "serverSide": true,#}
+            {#    "ajax": "api/film/"#}
+            {#} );#}
+
+            {#var table = $('#datatable').DataTable();#}
+            /*
+            $('#example tbody').on( 'click', 'tr', function () {
+                $(this).toggleClass('selected');
+            } );
+            */
+
+            {#$('#datatable_select_rows').click( function () {#}
+            {#    alert( table.rows('.selected').data().length +' row(s) selected' );#}
+            {#} );#}
+        });
+
+
+$(document).ready(function() {
+    $('#example').DataTable( {
+                "processing": true,
+                "serverSide": true,
+        "ajax": "api/customerList/",
+        {#"ajax": "api/film/",#}
+        "columns": [
+            { "data": "id" },
+            { "data": "name" },
+            { "data": "address" },
+            { "data": "zip_code" },
+            { "data": "phone" },
+            { "data": "notes" }
+        ]
+        {#"ajax": "media/data/objects.txt",#}
+        {#"columns": [#}
+        {#    { "data": "name" },#}
+        {#    { "data": "position" },#}
+        {#    { "data": "office" },#}
+        {#    { "data": "extn" },#}
+        {#    { "data": "start_date" },#}
+        {#    { "data": "salary" }#}
+        {#]        #}
+    } );
+} );
+
+{#"processing": true,#}
+
+          {#"ajax": "api/film/"#}
+            {#"ajax": "http://localhost:8100/api/albums/?format=datatables"#}
+            {#"ajax": "http://datatables.net/examples/server_side/scripts/server_processing.php>"#}
+    </script>
+
+
+
+<!-- e: me -->
+{% endblock javascripts %}
+
+{#<script language="JavaScript">#}
+{#    $(document).ready(function () {#}
+{#        $('#datatable').DataTable( {#}
+{#            "processing": true,#}
+{#            "serverSide": true,#}
+{#            "ajax": "api/film/"#}
+{#        } );#}
+{#    });#}
+{##}
+{#</script>#}

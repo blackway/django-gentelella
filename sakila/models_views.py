@@ -24,6 +24,12 @@ class CustomerList(models.Model):
         managed = False  # Created from a view. Don't remove.
         db_table = 'customer_list'
 
+    # @property
+    # def checkbox(self):
+    #     # 체크박스
+    #     return 0
+
+
 
 class FilmList(models.Model):
     fid = models.IntegerField(db_column='FID', blank=True, null=True)  # Field name made lowercase.

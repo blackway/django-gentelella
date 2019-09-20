@@ -323,6 +323,21 @@ class CustomerListListApi(generics.ListCreateAPIView):
         req_length = int(request.GET['length'])
         req_search_value = str(request.GET['search[value]'])
         logger.debug('req_search_value : %s' % req_search_value)
+        req_order_column = str(request.GET['order[0][column]'])
+        logger.debug('req_order_column : %s' % req_order_column)
+        req_order_dir = str(request.GET['order[0][dir]'])
+
+        req_order_column_nm = None
+        logger.debug('req_order_dir : %s' % req_order_dir)
+        if req_order_column:
+            req_order_column_nm = CustomerList._meta.fields[int(req_order_column)].attname
+            logger.debug('req_order_column_nm : %s' % req_order_column_nm)
+
+        if req_order_dir == 'desc':
+            return CustomerList.objects.filter(name__icontains=req_search_value).order_by('-'+req_order_column_nm)[req_start:req_length + req_start]
+        elif req_order_dir == 'asc':
+            return CustomerList.objects.filter(name__icontains=req_search_value).order_by(req_order_column_nm)[req_start:req_length + req_start]
+
         return CustomerList.objects.filter(name__icontains=req_search_value)[req_start:req_length + req_start]
 
     def list(self, request):

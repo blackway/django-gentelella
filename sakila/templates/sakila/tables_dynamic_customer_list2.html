@@ -354,23 +354,41 @@
                 console.log(' cell click : ', e.type);
                 console.log(' cell click this : ', $(this).find('input').val());
                 console.log(' cell click this : ', $(this).find('input').prop('checked'));
-                console.log( table.cell( this ).data() );
+                console.log(' table.cell( this ).index() : ',  table.cell( this ).index() );
+                console.log(' table.cell( this ).data() : ',  table.cell( this ).data() );
 
                 console.log("$(this).closest('tr') : ", $(this).closest('tr'));
                 var index = $('#datatable tbody tr').index(this.closest('tr'));
                 console.log('cell click 에 속한 행 index : ', index);
 
-                if($(this).find('input').prop('checked')){
-                    table.rows( index )
-                        .nodes()
-                        .to$()
-                        .addClass( 'selected' );
-                }else{
-                    table.rows( index )
-                        .nodes()
-                        .to$()
-                        .removeClass( 'selected' );
+                if(table.cell( this ).index().column == 0){
+                    // 체크박스일 때
+                    index = table.cell( this ).index().row;
+                    if($(this).find('input').prop('checked')){
+                        table.rows( index )
+                            .nodes()
+                            .to$()
+                            .addClass( 'selected' );
+                    }else{
+                        table.rows( index )
+                            .nodes()
+                            .to$()
+                            .removeClass( 'selected' );
+                    }
                 }
+
+
+                {#if($(this).find('input').prop('checked')){#}
+                {#    table.rows( index )#}
+                {#        .nodes()#}
+                {#        .to$()#}
+                {#        .addClass( 'selected' );#}
+                {#}else{#}
+                {#    table.rows( index )#}
+                {#        .nodes()#}
+                {#        .to$()#}
+                {#        .removeClass( 'selected' );#}
+                {#}#}
             } );
 
             //수정 모달 팝업

@@ -6,6 +6,22 @@ SELECT "customer_list"."ID",
        "customer_list"."city",
        "customer_list"."country",
        "customer_list"."notes",
+       "customer_list"."SID"
+FROM "customer_list"
+WHERE "customer_list"."name" LIKE '%%' ESCAPE '\'
+order by 2 asc
+LIMIT 10;
+
+
+
+SELECT "customer_list"."ID",
+       "customer_list"."name",
+       "customer_list"."address",
+       "customer_list"."zip_code",
+       "customer_list"."phone",
+       "customer_list"."city",
+       "customer_list"."country",
+       "customer_list"."notes",
        "customer_list"."SID",
        ROW_NUMBER() OVER (PARTITION BY "customer_list"."SID" ORDER BY "customer_list"."ID" DESC) AS "row_number"
 FROM "customer_list"

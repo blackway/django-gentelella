@@ -361,9 +361,9 @@
                 var index = $('#datatable tbody tr').index(this.closest('tr'));
                 console.log('cell click 에 속한 행 index : ', index);
 
+                // 체크박스일 때
+                index = table.cell( this ).index().row;
                 if(table.cell( this ).index().column == 0){
-                    // 체크박스일 때
-                    index = table.cell( this ).index().row;
                     if($(this).find('input').prop('checked')){
                         table.rows( index )
                             .nodes()
@@ -375,7 +375,20 @@
                             .to$()
                             .removeClass( 'selected' );
                     }
+                }else if(table.cell( this ).index().column == 1){
+                    //수정 모달 팝업
+                    $local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";
+                    {#$('#datatable > tbody > tr').click(function () {#}
+                        var selected_row = $('#datatable > tbody > tr').eq(index);
+                        console.log('수정 팝업')
+                        var text = $(selected_row).find('td').eq(0).text() + ' : ' + $(selected_row).find('td').eq(2).text();
+                        $($local_modal).find('#myModalLabel').text($(selected_row).find('td').eq(0).text());
+                        $("#modal_special_features").val($(selected_row).find('td').eq(2).text());
+                        $("#modal_description").text($(selected_row).find('td').eq(3).text());
+                        $($local_modal).modal();
+                    {#});#}
                 }
+
 
 
                 {#if($(this).find('input').prop('checked')){#}
@@ -391,17 +404,16 @@
                 {#}#}
             } );
 
-            //수정 모달 팝업
-            $local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";
-            $('#datatable > tbody > tr').click(function () {
-                console.log('수정 팝업')
-                var text = $(this).find('td').eq(0).text() + ' : ' + $(this).find('td').eq(2).text();
-                $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());
-                $("#modal_special_features").val($(this).find('td').eq(2).text());
-                $("#modal_description").text($(this).find('td').eq(3).text());
-                $($local_modal).modal();
-
-            });
+            {#//수정 모달 팝업#}
+            {#$local_modal = "body > div.container.body > div > div.right_col > div > div.modal.fade.bs-example-modal-lg";#}
+            {#$('#datatable > tbody > tr').click(function () {#}
+            {#    console.log('수정 팝업')#}
+            {#    var text = $(this).find('td').eq(0).text() + ' : ' + $(this).find('td').eq(2).text();#}
+            {#    $($local_modal).find('#myModalLabel').text($(this).find('td').eq(0).text());#}
+            {#    $("#modal_special_features").val($(this).find('td').eq(2).text());#}
+            {#    $("#modal_description").text($(this).find('td').eq(3).text());#}
+            {#    $($local_modal).modal();#}
+            {#});#}
         }
 
 
